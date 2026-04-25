@@ -51,7 +51,7 @@ module tb;
 
     initial begin
         $dumpfile("tocad.vcd");
-        $dumpvars(0, testbench);
+        $dumpvars(0, tb);
         
         ui_in = 8'b0; uio_in = 8'b0; ena = 1'b1; rst_n = 1'b0;
         $display("TOCAD Irrigation Chip -- Simulation Start");
@@ -99,7 +99,11 @@ module tb;
             wait_seconds(6);
             $display("  Tick processed...");
         end
-        if (dut.any_fault) $display("  PASS -- Fault detected after 3 ticks");
+        
+        if (uo_out[7])         // Use the output pin uo_out[7] instead of the internal signal dut.any_fault
+            $display("  PASS -- Fault detected after 3 ticks");
+        else
+            $display("  FAIL -- Fault not reflected on output pin");
 
         $display("Simulation Complete.");
         $finish;

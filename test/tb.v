@@ -1,6 +1,6 @@
 `timescale 1us/1ns
 
-module testbench;
+module tb;
 
     reg  [7:0] ui_in;
     wire [7:0] uo_out;

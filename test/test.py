@@ -41,13 +41,18 @@ async def test_project(dut):
 
     # ------------------------------------------------
     # TEST 2: Rain lockout
-    # Rain HIGH + DFT press -- no valve should open
+    # Reset first to clear all state cleanly
+    # Then set rain HIGH before any DFT press
     # ------------------------------------------------
     dut._log.info("TEST 2: Rain lockout")
 
-    # Wait for valves to close first (5s DFT duration = 50000 cycles at 10kHz)
-    await ClockCycles(dut.clk, 60000)
+    # Clean reset
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 20)
+    dut.rst_n.value = 1
+    await ClockCycles(dut.clk, 10)
 
+    # Now set rain HIGH then press DFT
     dut.ui_in.value  = 0b10000001   # zone 0 DRY + rain ON
     dut.uio_in.value = 0b00000001   # TEST_MANUAL
     await ClockCycles(dut.clk, 20)
@@ -55,7 +60,8 @@ async def test_project(dut):
     await ClockCycles(dut.clk, 500)
 
     valve_state = int(dut.uo_out.value) & 0x7F
-    assert valve_state == 0, f"TEST 2 FAIL: Valve opened despite rain, uo_out={dut.uo_out.value}"
+    assert valve_state == 0, \
+        f"TEST 2 FAIL: Valve opened despite rain, uo_out={dut.uo_out.value}"
     dut._log.info("TEST 2 PASS: Rain correctly blocked watering")
 
     # ------------------------------------------------

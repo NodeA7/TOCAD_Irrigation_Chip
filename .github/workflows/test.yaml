@@ -1,7 +1,7 @@
-name: wokwi_test
+name: test
 on: [push, workflow_dispatch]
 jobs:
-  wokwi_test:
+  test:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repo

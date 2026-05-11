@@ -19,17 +19,25 @@ def read_valves(dut):
 async def test_project(dut):
     dut._log.info("TOCAD Irrigation Chip -- Simulation Start")
 
-    clock = Clock(dut.clk, 100, unit="us")  # 10kHz
+    clock = Clock(dut.clk, 100, unit="us")
     cocotb.start_soon(clock.start())
 
-    # Reset — hold longer to flush all X states
+    # Drive power pins for GL simulation (ignored in RTL)
+    if hasattr(dut, 'VPWR'):
+        dut.VPWR.value = 1
+        dut.VGND.value = 0
+        dut.VPB.value  = 1
+        dut.VNB.value  = 0
+        await ClockCycles(dut.clk, 10)
+
+    # Reset
     dut.ena.value    = 1
     dut.ui_in.value  = 0
     dut.uio_in.value = 0
     dut.rst_n.value  = 0
-    await ClockCycles(dut.clk, 50)   # longer reset to clear X states
+    await ClockCycles(dut.clk, 50)
     dut.rst_n.value  = 1
-    await ClockCycles(dut.clk, 20)   # settle after reset
+    await ClockCycles(dut.clk, 20)
 
     # ------------------------------------------------
     # TEST 1: DFT manual trigger

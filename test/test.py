@@ -22,13 +22,12 @@ async def test_project(dut):
     clock = Clock(dut.clk, 100, unit="us")
     cocotb.start_soon(clock.start())
 
-    # Drive power pins for GL simulation (ignored in RTL)
-    if hasattr(dut, 'VPWR'):
-        dut.VPWR.value = 1
-        dut.VGND.value = 0
-        dut.VPB.value  = 1
-        dut.VNB.value  = 0
-        await ClockCycles(dut.clk, 10)
+   try:
+    dut.VPWR.value = 1
+    dut.VGND.value = 0
+    await ClockCycles(dut.clk, 10)
+except AttributeError:
+    pass  # RTL simulation, no power pins needed
 
     # Reset
     dut.ena.value    = 1
